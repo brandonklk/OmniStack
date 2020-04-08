@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 
 import api from '../../services/api';
+import validationField from '../../utils/validationFields';
 
 import './style.css';
 
@@ -12,6 +13,12 @@ export default function NewIncident(){
     const [ title, setTitle ] = useState('');
     const [ description, setDescription ] = useState('');
     const [ value, setValue ] = useState('');
+    
+    const [ validationTitle, setValidationTitle ] = useState();
+    const [ validationDescription, setvalidationDescription ] = useState();
+    const [ validationValue, setValidationValue ] = useState();
+
+    const validation = validationField(title, description, value)
 
     const history = useHistory();
 
@@ -21,25 +28,39 @@ export default function NewIncident(){
     async function handleNewIncident(e){
         e.preventDefault();
 
-        const data = {
-            title,
-            description,
-            value,
-        };
+            if(validation){
+                setValidationTitle('Invalido');
+                setvalidationDescription('Invalido');
+                setValidationValue('Invalido');
+                return;
+            }else{
 
-        try{
-            await api.post('incidents', data, {
-                headers: {
-                    Authorization: ongId,
+                setValidationTitle('');
+                setvalidationDescription('');
+                setValidationValue('');
+
+                const data = {
+                    title,
+                    description,
+                    value,
+                };
+        
+                try{
+                    await api.post('incidents', data, {
+                        headers: {
+                            Authorization: ongId,
+                        }
+                    })
+                    
+                    history.push('/profile');
+                }catch(err){
+                    alert('Erro ao cadastrar caso, tente novamente.');
                 }
-            })
-            
-            history.push('/profile');
-        }catch(err){
-            alert('Erro ao cadastrar caso, tente novamente.');
-        }
+            } 
 
-    }
+        }
+            
+    
 
 
     return (
@@ -63,18 +84,24 @@ export default function NewIncident(){
                         value={title}
                         onChange={e => setTitle(e.target.value)}
                     />
+                    <p className="validation" >{validationTitle}</p>
 
                     <textarea 
                         placeholder="Descrição"
                         value={description}
                         onChange={e => setDescription(e.target.value)}
                     />
+                    <p className="validation" >{validationDescription}</p>
 
                     <input 
+                        type="number"
+                        step="0.01"
+                        min="0.01"
                         placeholder="Valor em reais"
                         value={value}
                         onChange={e => setValue(e.target.value)}
                     />
+                    <p className="validation" >{validationValue}</p>
 
                     <button className="button" type="submit">Cadastrar</button>
                 </form>

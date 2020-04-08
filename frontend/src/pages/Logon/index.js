@@ -1,34 +1,52 @@
 import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import { FiLogIn } from 'react-icons/fi';
+import { Link, useHistory,  } from 'react-router-dom';
+import { FiLogIn, FiLoader } from 'react-icons/fi';
 
-import api from '../../services/api'
+import api from '../../services/api';
+import validationField from '../../utils/validationFields';
 
-import './style.css'
+import './style.css';
 
-import logoImg from '../../assets/logo.svg'
-import heroesImg from '../../assets/heroes.png'
+import logoImg from '../../assets/logo.svg';
+import heroesImg from '../../assets/heroes.png';
 
 export default function Logon(){
     const [id, setId] = useState('');
+    const [validationId, setValidationId] = useState('');
+    const [loading, setLoading] = useState(false);
+
     const history = useHistory();
+
+    const validation = validationField(id.trim());
 
     async function handleLogin(e){
         e.preventDefault();
 
-        try {
-           const response = await api.post('session', { id });
+        if(validation){
+            setValidationId('Invalido');
+            return;
+        }else{
+            setValidationId('');
 
-           localStorage.setItem('ongId', id);
-           localStorage.setItem('ongName', response.data.name);
+            try {
+                setLoading(true);
+                const response = await api.post('session', { id });
+                localStorage.setItem('ongId', id);
+                localStorage.setItem('ongName', response.data.name);
 
-           history.push('/profile')
+                setLoading(false);
 
-        } catch (err) {
-            console.log(err)
-            alert('Falha no login')
+                history.push('/profile');
+     
+            } catch (err) {
+                console.log(err);
+                setValidationId('Falha no login');
+                setLoading(false);
+            }
         }
+
     }
+   
 
     return (
         <div className="logon-container">
@@ -38,21 +56,36 @@ export default function Logon(){
                 <form onSubmit={handleLogin}>
                     <h1>Faça seu logon</h1>
 
-                    <input 
+                    <input
                         placeholder="Seu ID"
                         value={id}
                         onChange={e => setId(e.target.value)}
                     />
-                    <button className="button" type="submit">Entrar</button>
+
+                    <p className="validation">{validationId}</p>
+                   
+                    {loading ? 
+                        
+                        <button className="button" type="submit" disabled={loading}>
+                            <FiLoader size={22} color="#0000000" style={{ marginTop: 19 }}/>
+                        </button>
+                        
+                    :
+                        <button className="button" type="submit">
+                            Entrar
+                        </button>
+
+                    }
 
                     <Link className="back-link" to="/register">
                         <FiLogIn size={16} color="#E02041"/>
                         Não tenho cadastro
                     </Link>
+                     
                 </form>
             </section>
-
-          <img src={heroesImg} alt="Heroes" />
+            
+            <img src={heroesImg} alt="Heroes" />
         </div>
     );
 }

@@ -49,6 +49,7 @@
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 24px;
     list-style: none;
+    width: 100%;
 }
 
 .profile-container ul li {
@@ -56,6 +57,8 @@
     padding: 24px;
     border-radius: 8px;
     position: relative;
+    
+    
 }
 
 .profile-container ul li button {
@@ -63,6 +66,7 @@
     right: 24px;
     top: 24px;
     border: 0;
+    background-color: transparent;
 }
 
 .profile-container ul li button:hover {

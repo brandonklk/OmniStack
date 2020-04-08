@@ -50,6 +50,16 @@
     display: flex;
 }
 
-.register-container .content form .input-group input + input {
-    margin-left: 8px;
+.register-container .content form .input-group .field-city input, 
+.register-container .content form .input-group .field-uf input {
+    margin-top: 8px;
+}
+
+.register-container .content form .input-group .field-city{ 
+    width: 100%
+}
+
+.register-container .content form .input-group .field-uf input{
+    margin-left: 10px;
+    text-transform: uppercase;
 }

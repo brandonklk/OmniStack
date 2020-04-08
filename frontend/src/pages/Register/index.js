@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiLoader } from 'react-icons/fi';
 
-import api from '../../services/api'
-import './style.css'
+import api from '../../services/api';
+import validationField from '../../utils/validationFields';
 
-import logoImg from '../../assets/logo.svg'
+import './style.css';
+
+import logoImg from '../../assets/logo.svg';
 
 export default function Register(){
     const [ name, setName ] = useState('');
@@ -14,25 +16,53 @@ export default function Register(){
     const [ city, setCity ] = useState('');
     const [ uf, setUf ] = useState('');
 
+    const [ validationName, setValidationName ] = useState('');
+    const [ validationEmail, setValidationEmail ] = useState('');
+    const [ validationWhatsapp, setValidationWhatsapp ] = useState('');
+    const [ validationCity, setValidationCity ] = useState('');
+    const [ validationUf, setValidationUf ] = useState('');
+
+    const [loading, setLoading] = useState(false);
+
+    const validation = validationField(name, email, whatsapp, city, uf);
+
     const history = useHistory();
 
     async function handleRegister(e){
         e.preventDefault();
 
-        const data = {
-            name,
-            email,
-            whatsapp,
-            city,
-            uf,
-        };
+        if(validation){
+            setValidationName('Invalido');
+            setValidationEmail('Invalido');
+            setValidationWhatsapp('Invalido');
+            setValidationCity('Invalido');
+            setValidationUf('Invalido');
+        }else{
 
-        try{
-            const response = await api.post('ongs', data);
-            alert(`Seu ID de acesso: ${response.data.id}`);
-            history.push('/');
-        }catch(err){
-            alert('Erro ao cadastrar ong');
+            setValidationName('');
+            setValidationEmail('');
+            setValidationWhatsapp('');
+            setValidationCity('');
+            setValidationUf('');
+
+            const data = {
+                name,
+                email,
+                whatsapp,
+                city,
+                uf,
+            };
+    
+            try{
+                setLoading(true);
+                const response = await api.post('ongs', data);
+                alert(`Seu ID de acesso: ${response.data.id}`);
+                setLoading(false);
+                history.push('/');
+            }catch(err){
+                alert('Erro ao cadastrar ong');
+                setLoading(false);
+            }
         }
 
     }
@@ -47,7 +77,7 @@ export default function Register(){
                     <h1>Cadastro</h1>
                     <p>Faça seu cadastro, entre na plataforma e ajude a encontrarem os casos da sua ONG.</p>
 
-                    <Link className="back-link" to="/register">
+                    <Link className="back-link" to="/">
                         <FiArrowLeft size={16} color="#E02041"/>
                         Não tenho cadastro
                     </Link>
@@ -59,24 +89,41 @@ export default function Register(){
                         value={name}
                         onChange={e => setName(e.target.value)}
                     />
+
+                    <p className="validation">{validationName}</p>
+
                     <input 
                         type="email" 
                         placeholder="E-mail"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                     />
+
+                    <p className="validation">{validationEmail}</p>
+                    
                     <input 
                         placeholder="WhatsApp"
                         value={whatsapp}
                         onChange={e => setWhatsapp(e.target.value)}
                     />
+
+                    <p className="validation">{validationWhatsapp}</p>
                    
                     <div className="input-group">
-                        <input 
-                            placeholder="Cidade"
-                            value={city}
-                            onChange={e => setCity(e.target.value)}
-                        />
+
+                        <div className="field-city">
+                            <input 
+                                placeholder="Cidade"
+                                value={city}
+                                onChange={e => setCity(e.target.value)}
+                            />
+
+                            <p className="validation">{validationCity}</p>
+                        </div>
+                        
+
+                        
+                    <div className="field-uf">
                         <input 
                             placeholder="UF"
                             value={uf}
@@ -84,9 +131,20 @@ export default function Register(){
                             style={{ width: 80 }} 
                             maxLength="2"
                         />
+                        
+                        
+                            <p className="validation" style={{ marginLeft: 21 }} >{validationUf}</p>
+                        </div>
+                        
+                        
                     </div>
-
-                    <button className="button" type="submit">Cadastrar</button>
+                    {loading ? 
+                        <button className="button" type="submit">
+                            <FiLoader size={22} color="#0000000" style={{ marginTop: 19 }}></FiLoader>
+                        </button>
+                    :
+                        <button className="button" type="submit">Cadastrar</button>
+                    }
                 </form>
             </div>
         </div>
